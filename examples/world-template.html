@@ -57,7 +57,6 @@ div.tooltip {
 d3.select(window).on("resize", throttle);
 
 var zoom = d3.zoom()
-    //.extent([1,9])
     .scaleExtent([1, 9])
     .on("zoom", move);
 
@@ -84,18 +83,15 @@ function setup(width,height){
     .translate([(width/2), (height/2)])
     .scale( width / 2 / Math.PI);
 
-  //path = d3.geo.path().projection(projection);
   path = d3.geoPath().projection(projection);
 
   svg = d3.select("#container").append("svg")
       .attr("width", width)
       .attr("height", height)
       .call(zoom)
-      //.on("click", click)
       .append("g");
 
-  g = svg.append("g")
-         .on("click", click);
+  g = svg.append("g").on("click", click);
 
 }
 
@@ -146,23 +142,6 @@ function draw(topo) {
        .on("mouseover", handleMouseOver)
             .on("mouseout", handleMouseOut);
 
-
-  //tooltips
-  /*
-  d3.select("#container svg path")
-    .on("mousemove", function(d,i) {
-console.log(d);
-      var mouse = d3.mouse(svg.node()).map( function(d) { return parseInt(d); } );
-
-      tooltip.classed("hidden", false)
-             .attr("style", "left:"+(mouse[0]+offsetL)+"px;top:"+(mouse[1]+offsetT)+"px")
-             .html(d.properties.name);
-
-      })
-      .on("mouseout",  function(d,i) {
-        tooltip.classed("hidden", true);
-      }); 
-*/
 
   //EXAMPLE: adding some capitals from external CSV file
   d3.csv("../data/csv/country-capitals.csv", function(err, capitals) {
