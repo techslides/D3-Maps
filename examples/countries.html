@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>D3 Country Maps | TechSlides</title>
+<style>
+path:hover{
+  fill: #ccc;
+}
+.text{
+  font-size:10px;
+  text-transform:capitalize;
+}
+#container {
+  margin:10px 10%;
+  border:2px solid #000;
+  border-radius: 5px;
+  height:100%;
+  overflow:hidden;
+  background: #F0F8FF;
+}
+.hidden { 
+  display: none; 
+}
+div.tooltip {
+  color: #222; 
+  background: #fff; 
+  padding: .5em; 
+  text-shadow: #f5f5f5 0 1px 0;
+  border-radius: 2px; 
+  box-shadow: 0px 0px 2px 0px #a6a6a6; 
+  opacity: 0.9; 
+  position: absolute;
+}
+</style>
+</head>
+<body>
+
+  <h1>Explore Countries with D3 and TopoJSON</h1>
+  <p>TODO: Make D3 generate dropdown for all countries </p>
+  
+  <div id="container"></div>
+
+<script src="../js/d3.v4.min.js"></script>
+<script src="../js/topojson.v1.min.js"></script>
+
+
+<script>
+d3.select(window).on("resize", throttle);
+
+var color = d3.scaleOrdinal(d3.schemeCategory20);
+
+var c = document.getElementById('container');
+var width = c.offsetWidth;
+var height = width / 2;
+
+var topo,projection,path,svg,g;
+
+var offsetL = c.offsetLeft+20;
+var offsetT = c.offsetTop+10;
+
+var tooltip = d3.select("#container").append("div").attr("class", "tooltip hidden");
+
+setup(width,height);
+
+function setup(width,height){
+
+  projection = d3.geoMercator();
+
+  path = d3.geoPath().projection(projection);
+
+  svg = d3.select("#container").append("svg")
+      .attr("width", width)
+      .attr("height", height)
+      //zoom in v4: https://jsfiddle.net/gerardofurtado/c8bga82b/
+      .call(d3.zoom().on("zoom", function () {
+            svg.attr("transform", d3.event.transform)
+        }))
+      .on("click", click)
+      .append("g");
+
+  g = svg.append("g");
+
+}
+
+function handleMouseOver(){
+  var mouse = d3.mouse(svg.node()).map( function(d) { return parseInt(d); } );
+
+  tooltip.classed("hidden", false)
+    .attr("style", "left:"+(mouse[0]+offsetL)+"px;top:"+(mouse[1]+offsetT)+"px")
+    .html(this.__data__.properties.name);
+}
+
+function handleMouseOut(){
+  tooltip.classed("hidden", true);
+}
+
+//get country name, else world?? click on world zooms into country?
+var countryname = window.location.search.substr(1).replace("country=","");
+if(countryname!==""){
+	//capitalize
+	var cname = countryname.charAt(0).toUpperCase()+countryname.slice(1);
+} else {
+	//load world?
+	var cname = "Poland";
+}
+
+d3.json("data/countries/ne_admin1/"+cname+".topo.json", function(error, map) {
+
+  var countries = topojson.feature(map, map.objects.map);
+
+  topo = countries;
+  draw(topo);
+
+});
+
+function draw(topo) {
+
+	//zoom to topojson feature
+	var b = path.bounds(topo);
+	var s = .95 / Math.max((b[1][0] - b[0][0]) / width, (b[1][1] - b[0][1]) / height);
+	var t = [(width - s * (b[1][0] + b[0][0])) / 2, (height - s * (b[1][1] + b[0][1])) / 2];
+
+	g.attr("transform", "translate(" + t + ")scale(" + s + ")");
+
+    var country = g.selectAll(".country").data(topo.features);
+
+    country.enter().insert("path")
+      .attr("d", path)
+      .attr("id", function(d,i) { return d.id; })
+      .attr("title", function(d,i) { return d.properties.name_alt; })
+      .style("fill", function(d, i) { return color(d.id.toLowerCase().replace(/.*-/,"")); })
+      .on("mouseover", handleMouseOver)
+      .on("mouseout", handleMouseOut);
+
+}
+
+function redraw() {
+  width = c.offsetWidth;
+  height = width / 2;
+  d3.select('svg').remove();
+  setup(width,height);
+  draw(topo);
+}
+
+var throttleTimer;
+function throttle() {
+  window.clearTimeout(throttleTimer);
+    throttleTimer = window.setTimeout(function() {
+      redraw();
+    }, 200);
+}
+
+
+//geo translation on mouse click in map
+function click() {
+  var latlon = projection.invert(d3.mouse(this));
+  console.log(latlon);
+}
+</script>
+</body>
+</html>
