@@ -10,7 +10,44 @@
 <body>
     <main class="wysiwyg">
         <h1>D3 Maps - Mapping with D3.js</h1>
-        <p>Building Maps with D3. A template, boilerplate, or starter kit for building various maps with <a href="https://github.com/d3/d3">D3.js</a>. Links to examples and <a href="https://github.com/mbostock/topojson"></a>topojson</a> data files. If this is your first time working with D3.js, I recommend reading Mike Bostock's <a href="https://bost.ocks.org/mike/map/">Let's Make a Map</a></p>
+        <p>Building Maps with D3. A template, boilerplate, or starter kit for building various maps with <a href="https://github.com/d3/d3">D3.js</a>. Links to examples and <a href="https://github.com/mbostock/topojson"></a>TopoJSON</a> data files. If this is your first time working with D3.js, I recommend reading Mike Bostock's <a href="https://bost.ocks.org/mike/map/">Let's Make a Map</a> and looking at a <a href="http://bl.ocks.org/mbostock/4180634">basic</a> <a href="http://bl.ocks.org/jasondavies/4188334">example</a>.</p>
+        <h2>World Map Template</h2>
+        <img src="http://i.imgur.com/F31auyO.png?2" alt="D3 World Map Template">
+        <p>With D3 v4 you can build a World Map with the main <a href="https://techslides.github.io/D3-Maps/examples/world-template.html">D3.js file</a> or with <a href="https://techslides.github.io/D3-Maps/examples/world-template-micro.html">D3 Microlibraries</a>. These 2 examples show how to build a World Map that has a constrained pan and zoom, responsive design, different colors for each country, tooltips, capitals from external CSV file, and much more.</p>
+        <h3>World Map Data</h3>
+        <p>The TopoJSON file above was customized by hand to split some countries (ie. seperate France from French Guyana) and include missing undefined countries (Kosovo, Somaliland, Northern Cyprus, Christmas Island, Cocos Islands, and Siachen Glacier). This is a one-off. For building your own world TopoJSON files, check out <a href="https://github.com/mbostock/world-atlas">World Atlas TopoJSON</a> and <a href="https://github.com/mbostock/topojson/">TopoJSON</a></p>
+        <h2>Maps of Countries</h2>
+        <p>Individual <a href="">Country Maps with States and Provinces</a>. Instead of listing each country and building individual files for each country, one file is used with a dropdown that pulls each country TopoJSON file.</p>
+        <h3>Country Map Data</h3>
+        <p>Individual country TopoJSON files are generated from NaturalEarth's <a href="http://www.naturalearthdata.com/downloads/10m-cultural-vectors/10m-admin-1-states-provinces/">Admin 1 States,Provinces</a> shapefiles. This has been run on Mac OS with ogr2ogr and TopoJSON. The process is outlined below:
+        <ul>
+            <li>Split 1 shapefile into country specific shapefiles<br><code>ls -l | while read line; do ogr2ogr -f "ESRI Shapefile" -where "admin = '$line'" "out/country_$line.shp" ne_10m_admin_1_states_provinces.shp; done</code></li>
+            <li>Convert to TopoJSON and keep specific properties (adm1_code for ID and name, name_alt, and <a href="http://ntl.bts.gov/data/letter_am/fipscode.pdf">fips</a> under properties)<br><code>for file in *; do if [[ ${file: -4} == ".shp" ]]; then topojson -q 1e5 --id-property adm1_code -p name,name_alt,fips -o ${file%.*}.topo.json map=$file; fi; done</code></li>
+            <li>Move each TopoJSON files into seperate directory and save files using the name convention CountryName.topo.json<br><code>for file in *; do if [[ ${file: -5} == ".json" ]]; then mv $file out/${file//country_/}; fi; done</code></li>
+        </ul>
+        </p>
+        <h2>Todo:</h2>
+        <ul>
+            <li>Include country maps with multiple words (United States of America) and update instructions on genetating data files</li>
+            <li>Clean up code</li>
+            <li>Provide shapefile example, projected topojson example, and geojson example</li>
+        </ul>
+        <h2>Other Map Examples with D3:</h2>
+        <ul>
+            <li><a href="http://techslides.com/demos/d3/d3-exploring-countries.html">Exploring countries in D3</a></li>
+            <li><a href="http://bl.ocks.org/patricksurry/6621971">Rolling pan and zoom with Mercator projection</a></li>
+        </ul>
+        <h2>Requested Map Examples with D3.js:</h2>
+        <ul>
+            <li>Map of usa</li>
+            <li>Map of world with all provinces and states</li>
+            <li>Map of each continent</li>
+        </ul>
+        <h2>Other Interesting Maps and Map Resources</h2>
+        <ul>
+            <li><a href="http://www.macwright.org/2015/03/23/geojson-second-bite.html">Dig into GeoJSON</a></li>
+            <li><a href="https://github.com/johan/world.geo.json">Annotated geo-json geometry files for the world</a></li>
+        </ul>         
     </main>
 </body>
 </html>
