@@ -103,7 +103,7 @@ if(countryname!==""){
 	var cname = "Poland";
 }
 
-d3.json("data/countries/ne_admin1/"+cname+".topo.json", function(error, map) {
+d3.json("../data/world/country/"+cname+".topo.json", function(error, map) {
 
   var countries = topojson.feature(map, map.objects.map);
 
