@@ -276,8 +276,10 @@ if(countryname!==""){
 	var cname = countryname.charAt(0).toUpperCase()+countryname.slice(1);
 } else {
 	//load world?
-	var cname = "Poland";
+	var cname = "Canada";
 }
+//update dropdown
+document.getElementById("selectBox").value=cname;
 
 d3.json("../data/world/country/"+cname+".topo.json", function(error, map) {
 
