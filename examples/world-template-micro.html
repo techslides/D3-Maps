@@ -18,19 +18,6 @@
   overflow:hidden;
   background: #F0F8FF;
 }
-.hidden { 
-  display: none; 
-}
-div.tooltip {
-  color: #222; 
-  background: #fff; 
-  padding: .5em; 
-  text-shadow: #f5f5f5 0 1px 0;
-  border-radius: 2px; 
-  box-shadow: 0px 0px 2px 0px #a6a6a6; 
-  opacity: 0.9; 
-  position: absolute;
-}
 .graticule {
   fill: none;
   stroke: #bbb;
@@ -79,8 +66,6 @@ var topo,projection,path,svg,g;
 
 var graticule = d3.geoGraticule();
 
-var tooltip = d3.select("#container").append("div").attr("class", "tooltip hidden");
-
 setup(width,height);
 
 function setup(width,height){
@@ -102,17 +87,6 @@ function setup(width,height){
 
 }
 
-/*
-d3.json("data/world-topo-min.json", function(error, world) {
-
-  var countries = topojson.feature(world, world.objects.countries).features;
-
-  topo = countries;
-  draw(topo);
-
-});
-*/
-
 var xhttp = new XMLHttpRequest();
 xhttp.onreadystatechange = function() {
     if (xhttp.readyState == 4 && xhttp.status == 200) {
@@ -127,7 +101,7 @@ xhttp.onreadystatechange = function() {
 
     }
 };
-xhttp.open("GET", "data/world-topo-min.json", true);
+xhttp.open("GET", "../data/world/world-custom.json", true);
 xhttp.send();
 
 
@@ -138,12 +112,10 @@ function draw(topo) {
      .attr("class", "graticule")
      .attr("d", path);
 
-
   g.append("path")
    .datum({type: "LineString", coordinates: [[-180, 0], [-90, 0], [0, 0], [90, 0], [180, 0]]})
    .attr("class", "equator")
    .attr("d", path);
-
 
   var country = g.selectAll(".country").data(topo);
 
@@ -153,25 +125,6 @@ function draw(topo) {
       .attr("id", function(d,i) { return d.id; })
       .attr("title", function(d,i) { return d.properties.name; })
       .style("fill", function(d, i) { return d.properties.color; });
-
-  //offsets for tooltips
-  var offsetL = document.getElementById('container').offsetLeft+20;
-  var offsetT = document.getElementById('container').offsetTop+10;
-
-  //tooltips
-  country
-    .on("mousemove", function(d,i) {
-
-      var mouse = d3.mouse(svg.node()).map( function(d) { return parseInt(d); } );
-
-      tooltip.classed("hidden", false)
-             .attr("style", "left:"+(mouse[0]+offsetL)+"px;top:"+(mouse[1]+offsetT)+"px")
-             .html(d.properties.name);
-
-      })
-      .on("mouseout",  function(d,i) {
-        tooltip.classed("hidden", true);
-      }); 
 
 
   var xhttp = new XMLHttpRequest();
@@ -187,7 +140,7 @@ function draw(topo) {
 
       }
   };
-  xhttp.open("GET", "data/country-capitals.csv", true);
+  xhttp.open("GET", "../data/csv/country-capitals.csv", true);
   xhttp.send();
 
 
