@@ -22,9 +22,10 @@
         <h3>Country Map Data</h3>
         <p>Individual country TopoJSON files are generated from NaturalEarth's <a href="http://www.naturalearthdata.com/downloads/10m-cultural-vectors/10m-admin-1-states-provinces/">Admin 1 States,Provinces</a> shapefiles. This has been run on Mac OS with ogr2ogr and TopoJSON. The process is outlined below:
         <ul>
-            <li>Split 1 shapefile into country specific shapefiles<br><code>ls -l | while read line; do ogr2ogr -f "ESRI Shapefile" -where "admin = '$line'" "out/country_$line.shp" ne_10m_admin_1_states_provinces.shp; done</code></li>
-            <li>Convert to TopoJSON and keep specific properties (adm1_code for ID and name, name_alt, and <a href="http://ntl.bts.gov/data/letter_am/fipscode.pdf">fips</a> under properties)<br><code>for file in *; do if [[ ${file: -4} == ".shp" ]]; then topojson -q 1e5 --id-property adm1_code -p name,name_alt,fips -o ${file%.*}.topo.json map=$file; fi; done</code></li>
-            <li>Move each TopoJSON files into seperate directory and save files using the name convention CountryName.topo.json<br><code>for file in *; do if [[ ${file: -5} == ".json" ]]; then mv $file out/${file//country_/}; fi; done</code></li>
+            <li>Make a CSV of all countries included in NE shapefile<br><code>ogr2ogr -f CSV ne_10m_admin_0_countries.csv ne_10m_admin_1_states_provinces.shp -sql "SELECT DISTINCT admin FROM ne_10m_admin_1_states_provinces"</code></li>
+            <li>Split 1 shapefile into country specific shapefiles based on CSV (rename spaces in fields to underscore)<br><code>cat countries.csv | while read line; do ogr2ogr -f "ESRI Shapefile" -where "admin = '$line'" "out/country_${line// /_}.shp" ne_10m_admin_1_states_provinces.shp; done</code></li>
+            <li>Convert Shapefile to TopoJSON and keep specific properties (adm1_code for ID and name, name_alt, and <a href="http://ntl.bts.gov/data/letter_am/fipscode.pdf">fips</a> under properties)<br><code>for file in *; do if [[ ${file: -4} == ".shp" ]]; then topojson -q 1e5 --id-property adm1_code -p name,name_alt,fips -o ${file%.*}.topo.json map=$file; fi; done</code></li>
+            <li>Move each TopoJSON files into seperate countries folder<br><code>copy *.json countries</code></li>
         </ul>
         </p>
         <h2>Todo:</h2>
